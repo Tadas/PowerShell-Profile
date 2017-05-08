@@ -20,11 +20,14 @@ function Prompt {
 		}
 	}
     Write-Host "" # Separator after the output
-	Write-Host "[$(Get-Date -Format T)] $(Get-Location)"  -Background Black -Foreground Green -NoNewLine
+	Write-Host "[$(Get-Date -Format T)]" -Foreground Gray -BackgroundColor DarkBlue -NoNewLine
+	Write-Host $ColorSeparator -NoNewline -Background Black -ForegroundColor DarkBlue
+	Write-Host "$(Get-Location)" -Background Black -Foreground Green -NoNewLine
 	
 	# Fill the remainder of the line with some color!
-	$RemainingSpace = (Get-Host).UI.RawUI.BufferSize.Width - (Get-Host).UI.RawUI.CursorPosition.X 
-	Write-Host (" " * $RemainingSpace) -Background Black -Foreground Green -NoNewLine
+	$RemainingSpace = ((Get-Host).UI.RawUI.BufferSize.Width - (Get-Host).UI.RawUI.CursorPosition.X) - 2
+	Write-Host "$(" " * $RemainingSpace)" -Background Black -Foreground Green -NoNewLine
+	Write-Host $ColorSeparator -Foreground Black -NoNewLine
 
 	Write-Host " λ" -NoNewLine -Foreground Black -BackgroundColor DarkGray
 	Write-Host $ColorSeparator -NoNewline -ForegroundColor DarkGray
