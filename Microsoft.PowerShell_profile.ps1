@@ -1,11 +1,35 @@
 ﻿Clear-Host
-Write-Host "`n`t`"Never send a human to do a machine's job.`"`n"
 
+# http://nerdfonts.com/#cheat-sheet
+$Glyphs = @{
+	FilledTriangleRight = [char]0xe0b0
+	RightSoftDivider = [char]0xe0b1
+	
+	FilledTriangleLeft = [char]0xe0b2
+	LeftSoftDivider = [char]0xe0b3
+	
+	Clock = [char]0xf43a
+	
+	DoubleLeftAngle = "«"
+	DoubleRightAngle = "»"
+
+	Branch = [char]0xe0a0
+	Folder = [char]0xf07c
+}
+
+$Colors = @{
+	ActiveTextFore = "Gray" # Like the command prompt
+	PassiveTextFore = "DarkGray" # Like the clock
+
+	StatusLineBackground = "Black" # Path background
+	StatusLineForeground = "Green" # Path text
+	TerminalBackgroundColor = $Host.UI.RawUI.BackgroundColor # For things that can be transparent
+}
+
+Write-Host "`n`tNever send a human to do a machine's job`n" -ForegroundColor $Colors.ActiveTextFore
 
 $global:LastCommandsHistoryId = 0
 
-$ColorSeparator = [char]0xe0b0
-# The custom prompt
 function Prompt {
 	$NextHistId = (Get-History -count 1).Id + 1
 
@@ -19,21 +43,27 @@ function Prompt {
 			
 		}
 	}
-    Write-Host "" # Separator after the output
-	Write-Host "[$(Get-Date -Format T)]" -Foreground Gray -BackgroundColor DarkBlue -NoNewLine
-	Write-Host $ColorSeparator -NoNewline -Background Black -ForegroundColor DarkBlue
-	Write-Host "$(Get-Location)" -Background Black -Foreground Green -NoNewLine
-	
-	# Fill the remainder of the line with some color!
-	$RemainingSpace = ((Get-Host).UI.RawUI.BufferSize.Width - (Get-Host).UI.RawUI.CursorPosition.X) - 2
-	Write-Host "$(" " * $RemainingSpace)" -Background Black -Foreground Green -NoNewLine
-	Write-Host $ColorSeparator -Foreground Black -NoNewLine
+	Write-Host "" # Separator after the last command's output
 
-	Write-Host " λ" -NoNewLine -Foreground Black -BackgroundColor DarkGray
-	Write-Host $ColorSeparator -NoNewline -ForegroundColor DarkGray
+	# The small arrow before the clock
+	Write-Host " " -Background Black -Foreground Black -NoNewline
+	Write-Host $Glyphs.FilledTriangleRight -Foreground Black -NoNewline
+
+	# Clock
+	Write-Host "$($Glyphs.Clock) $(Get-Date -Format T)" -Foreground DarkGray -NoNewLine
+	Write-Host $Glyphs.FilledTriangleRight -Background $Colors.StatusLineBackground -ForegroundColor $Colors.TerminalBackgroundColor -NoNewline
+	
+	# Current path and fill the remainder of the line with background color!
+	Write-Host "$($Glyphs.Folder) $(Get-Location)" -Background $Colors.StatusLineBackground -Foreground $Colors.StatusLineForeground -NoNewLine
+	$RemainingSpace = ((Get-Host).UI.RawUI.BufferSize.Width - (Get-Host).UI.RawUI.CursorPosition.X) - 2
+	Write-Host "$(" " * $RemainingSpace)" -Background $Colors.StatusLineBackground -NoNewLine
+	Write-Host $Glyphs.FilledTriangleRight -Foreground $Colors.StatusLineBackground -NoNewLine
+
+	# Prompt line below the status line
+	Write-Host " λ »" -NoNewLine -Foreground $Colors.ActiveTextFore
 	
 	$global:LastCommandsHistoryId = $NextHistId
-	return " "
+	return " " # return something otherwise we get PS> added
 }
 
 
