@@ -7,6 +7,11 @@ $Glyphs = @{
 	
 	FilledTriangleLeft = [char]0xe0b2
 	LeftSoftDivider = [char]0xe0b3
+
+	FilledTriangleLowerLeft = [char]0xe0b8
+	FilledTriangleLowerRight = [char]0xe0ba
+	FilledTriangleUpperLeft = [char]0xe0bc
+	FilledTriangleUpperRight = [char]0xe0be
 	
 	Clock = [char]0xf43a
 	
@@ -15,6 +20,11 @@ $Glyphs = @{
 
 	Branch = [char]0xe0a0
 	Folder = [char]0xf07c
+
+	gitAdded = [char]0xf457
+	gitDeleted = [char]0xf458
+	gitModified = [char]0xf459
+
 }
 
 $Colors = @{
@@ -53,8 +63,45 @@ function Prompt {
 	Write-Host "$($Glyphs.Clock) $(Get-Date -Format T)" -Foreground DarkGray -NoNewLine
 	Write-Host $Glyphs.FilledTriangleRight -Background $Colors.StatusLineBackground -ForegroundColor $Colors.TerminalBackgroundColor -NoNewline
 	
-	# Current path and fill the remainder of the line with background color!
+	# Current path
 	Write-Host "$($Glyphs.Folder) $(Get-Location)" -Background $Colors.StatusLineBackground -Foreground $Colors.StatusLineForeground -NoNewLine
+	
+	# git info (requires posh-git)
+	if(Get-Command Get-GitStatus -ErrorAction SilentlyContinue){
+		$GitStatus = Get-GitStatus
+		if($GitStatus){
+			Write-Host $Glyphs.FilledTriangleUpperLeft -ForegroundColor Black -BackgroundColor Gray -NoNewline
+			Write-Host " $($Glyphs.Branch) $($GitStatus.Branch)" -BackgroundColor Gray -ForegroundColor Black -NoNewline
+
+			if($GitStatus.HasWorking){
+				# Write-Host $Glyphs.FilledTriangleUpperLeft -ForegroundColor Gray -BackgroundColor DarkGray -NoNewline
+				Write-Host $Glyphs.FilledTriangleRight -ForegroundColor Gray -BackgroundColor DarkGray -NoNewline
+
+				if($GitStatus.Working.Added.count -gt 0){
+					Write-Host " $($Glyphs.gitAdded)" -BackgroundColor DarkGray -ForegroundColor Black -NoNewline
+					Write-Host $GitStatus.Working.Added.count -BackgroundColor DarkGray -ForegroundColor Black -NoNewline
+				}
+
+				if($GitStatus.Working.Deleted.count -gt 0){
+					Write-Host " $($Glyphs.gitDeleted)" -BackgroundColor DarkGray -ForegroundColor Black -NoNewline
+					Write-Host $GitStatus.Working.Deleted.count -BackgroundColor DarkGray -ForegroundColor Black -NoNewline
+				}
+
+				if($GitStatus.Working.Modified.count -gt 0){
+					Write-Host " $($Glyphs.gitModified)" -BackgroundColor DarkGray -ForegroundColor Black -NoNewline
+					Write-Host $GitStatus.Working.Modified.count -BackgroundColor DarkGray -ForegroundColor Black -NoNewline
+				}
+
+				# If there were no working changed then render end of git working block
+				Write-Host $Glyphs.FilledTriangleUpperLeft -ForegroundColor DarkGray -BackgroundColor Black -NoNewline
+			} else {
+				# If there were no working changed then render end of git block
+				Write-Host $Glyphs.FilledTriangleUpperLeft -ForegroundColor Gray -BackgroundColor Black -NoNewline
+			}
+		}
+	}
+	
+	# and fill the remainder of the line with background color!
 	$RemainingSpace = ((Get-Host).UI.RawUI.BufferSize.Width - (Get-Host).UI.RawUI.CursorPosition.X) - 2
 	Write-Host "$(" " * $RemainingSpace)" -Background $Colors.StatusLineBackground -NoNewLine
 	Write-Host $Glyphs.FilledTriangleRight -Foreground $Colors.StatusLineBackground -NoNewLine
