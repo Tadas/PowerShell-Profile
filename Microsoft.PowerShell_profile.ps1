@@ -113,35 +113,5 @@ function Prompt {
 	return " " # return something otherwise we get PS> added
 }
 
-
-# Make the cd command smarter - go to the parent folder if file path specified
-function Set-LocationBetter {
-	Param(
-		[Parameter(ValueFromRemainingArguments=$true)]
-		[string]$NewLocation = ""
-	)
-
-	if ($NewLocation -eq ""){
-		Write-Host "Where to? " -NoNewline
-		[console]::ForegroundColor = "Green"
-		[console]::BackgroundColor= "Black"
-		
-		$NewLocation = Read-Host
-		
-		[console]::ResetColor()
-	}
-	
-	if([string]::IsNullOrEmpty($NewLocation)){ return }
-
-	# If a file is specified as the location go to that files folder
-	if (Test-Path -Type Leaf $NewLocation){
-		$NewLocation = Split-Path -Parent $NewLocation
-	}
-	Set-Location $NewLocation
-	Write-Host
-}
-Set-Alias cd "Set-LocationBetter" -Option AllScope -Scope Global
-
-
 $Host.UI.RawUI.WindowTitle = "[PID:" + [System.Diagnostics.Process]::GetCurrentProcess().Id + "]"
 
