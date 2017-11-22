@@ -1,6 +1,0 @@
-[submodule "Modules/PSTurret"]
-	path = Modules/PSTurret
-	url = https://github.com/Tadas/PSTurret
-[submodule "Modules/Raychiukas"]
-	path = Modules/Raychiukas
-	url = https://github.com/Tadas/Raychiukas.git
