@@ -53,7 +53,9 @@ function Prompt {
 
 		}
 	}
-	Write-Host "" # Separator after the last command's output
+
+	# Separator after the last command's output
+	Write-Host ""
 
 	# Clock
 	Write-Host "  $(Get-Date -Format T)" -Foreground DarkGray -NoNewLine
@@ -97,11 +99,14 @@ function Prompt {
 		}
 	}
 
-	# and fill the remainder of the line with background color!
-	# $RemainingSpace = ((Get-Host).UI.RawUI.BufferSize.Width - (Get-Host).UI.RawUI.CursorPosition.X) - 2
-	# Write-Host "$(" " * $RemainingSpace)" -Background $Colors.StatusLineBackground -NoNewLine
-	# Write-Host $Glyphs.FilledTriangleRight -Foreground $Colors.StatusLineBackground #-NoNewLine
+	# and add some markers right alinged
+	if ($VerbosePreference -eq 'Continue') {
+		$Indicator = ''
+		$RemainingSpace = ((Get-Host).UI.RawUI.BufferSize.Width - (Get-Host).UI.RawUI.CursorPosition.X)
 
+		Write-Host (" " * ($RemainingSpace - $Indicator.Length)) -Background Black -NoNewLine
+		Write-Host $Indicator -ForegroundColor Yellow -NoNewLine
+	}
 	# Prompt line below the status line
 	Write-Host ""
 	Write-Host " λ »" -NoNewLine -Foreground Gray
@@ -109,5 +114,7 @@ function Prompt {
 	$global:LastCommandsHistoryId = $NextHistId
 	return " " # return something otherwise we get PS> added
 }
+# Fix PSReadLine error marker by telling which part of the prompt should turn red on error
+try { Set-PSReadLineOption -PromptText "λ » " } catch {}
 
-$Host.UI.RawUI.WindowTitle = "PID:" + [System.Diagnostics.Process]::GetCurrentProcess().Id + " > "
+$Host.UI.RawUI.WindowTitle = "PID:" + [System.Diagnostics.Process]::GetCurrentProcess().Id
